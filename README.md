@@ -24,6 +24,40 @@ We welcome contributions! Please follow these steps to contribute to the project
 
 ## Development
 
+### Local Development (macOS)
+
+For local development on macOS, you need to install the following dependencies:
+
+```bash
+# Install Homebrew if not already installed
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install required dependencies
+brew install pkg-config vips
+
+# Install KTX-Software (contains toktx tool)
+# Option 1: Use the installation script (requires sudo)
+./install-toktx.sh --system
+
+# Option 2: Manual installation
+# Download from: https://github.com/KhronosGroup/KTX-Software/releases
+# Install the .pkg file for your architecture (arm64 or x86_64)
+```
+
+Then you can build and run the service:
+
+```bash
+# Build the project
+./build.sh
+
+# Or build and run directly
+./run.sh
+```
+
+The service will be available at `http://localhost:4000`
+
+### Docker Development
+
 You can use Docker to set up a consistent development environment. Follow the steps below to get started.
 
 1. Clone this repository:
