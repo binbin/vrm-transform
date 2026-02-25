@@ -133,17 +133,17 @@ func (mr *MockConvertToKtx2ImageDependenciesInterfaceMockRecorder) ImageSizer(da
 }
 
 // ParamsGenerator mocks base method.
-func (m *MockConvertToKtx2ImageDependenciesInterface) ParamsGenerator(mode string, width, height int, inputPath, outputPath string, isSRGB bool, etc1sQuality, uastcQuality, zstdLevel int) []string {
+func (m *MockConvertToKtx2ImageDependenciesInterface) ParamsGenerator(mode string, width, height int, inputPath, outputPath string, isSRGB bool, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel int) []string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParamsGenerator", mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	ret := m.ctrl.Call(m, "ParamsGenerator", mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
 // ParamsGenerator indicates an expected call of ParamsGenerator.
-func (mr *MockConvertToKtx2ImageDependenciesInterfaceMockRecorder) ParamsGenerator(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel any) *gomock.Call {
+func (mr *MockConvertToKtx2ImageDependenciesInterfaceMockRecorder) ParamsGenerator(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParamsGenerator", reflect.TypeOf((*MockConvertToKtx2ImageDependenciesInterface)(nil).ParamsGenerator), mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParamsGenerator", reflect.TypeOf((*MockConvertToKtx2ImageDependenciesInterface)(nil).ParamsGenerator), mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 }
 
 // UUIDGenerator mocks base method.
@@ -184,16 +184,16 @@ func (m *MockConvertToKtx2TextureDependenciesInterface) EXPECT() *MockConvertToK
 }
 
 // ConvertToKtx2Image mocks base method.
-func (m *MockConvertToKtx2TextureDependenciesInterface) ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality, uastcQuality, zstdLevel int) ([]byte, error) {
+func (m *MockConvertToKtx2TextureDependenciesInterface) ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel int) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConvertToKtx2Image", deps, ktx2Mode, buf, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	ret := m.ctrl.Call(m, "ConvertToKtx2Image", deps, ktx2Mode, buf, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ConvertToKtx2Image indicates an expected call of ConvertToKtx2Image.
-func (mr *MockConvertToKtx2TextureDependenciesInterfaceMockRecorder) ConvertToKtx2Image(deps, ktx2Mode, buf, isSRGB, etc1sQuality, uastcQuality, zstdLevel any) *gomock.Call {
+func (mr *MockConvertToKtx2TextureDependenciesInterfaceMockRecorder) ConvertToKtx2Image(deps, ktx2Mode, buf, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertToKtx2Image", reflect.TypeOf((*MockConvertToKtx2TextureDependenciesInterface)(nil).ConvertToKtx2Image), deps, ktx2Mode, buf, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertToKtx2Image", reflect.TypeOf((*MockConvertToKtx2TextureDependenciesInterface)(nil).ConvertToKtx2Image), deps, ktx2Mode, buf, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 }

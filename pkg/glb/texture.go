@@ -36,8 +36,8 @@ func (d *DefaultConvertToKtx2ImageDependencies) CommandExecutor(name string, arg
 	return cmd.Run()
 }
 
-func (d *DefaultConvertToKtx2ImageDependencies) ParamsGenerator(mode string, width, height int, inputPath, outputPath string, isSRGB bool, etc1sQuality, uastcQuality, zstdLevel int) []string {
-	return getKtx2Params(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+func (d *DefaultConvertToKtx2ImageDependencies) ParamsGenerator(mode string, width, height int, inputPath, outputPath string, isSRGB bool, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel int) []string {
+	return getKtx2Params(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 }
 
 func (d *DefaultConvertToKtx2ImageDependencies) FileReader(filePath string) ([]byte, error) {
@@ -54,8 +54,8 @@ func (d *DefaultConvertToKtx2ImageDependencies) FileRemover(filePath string) err
 
 type DefaultConvertToKtx2TextureDependencies struct{}
 
-func (d *DefaultConvertToKtx2TextureDependencies) ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality int, uastcQuality int, zstdLevel int) ([]byte, error) {
-	return ConvertToKtx2Image(deps, ktx2Mode, buf, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+func (d *DefaultConvertToKtx2TextureDependencies) ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel int) ([]byte, error) {
+	return ConvertToKtx2Image(deps, ktx2Mode, buf, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 }
 
 func resizeImage(buf []byte, width, height int) (image []byte, err error) {
@@ -78,9 +78,12 @@ func resizeImage(buf []byte, width, height int) (image []byte, err error) {
 	return image, nil
 }
 
-func getKtx2Params(ktx2Mode string, width int, height int, inputPath string, outputPath string, isSRGB bool, etc1sQuality int, uastcQuality int, zstdLevel int) []string {
+func getKtx2Params(ktx2Mode string, width int, height int, inputPath string, outputPath string, isSRGB bool, etc1sQuality int, etc1sClevel int, uastcQuality int, zstdLevel int) []string {
 	if etc1sQuality < 1 || etc1sQuality > 255 {
 		etc1sQuality = 128
+	}
+	if etc1sClevel < 0 || etc1sClevel > 5 {
+		etc1sClevel = 1
 	}
 	if uastcQuality < 0 || uastcQuality > 4 {
 		uastcQuality = 2
@@ -102,7 +105,7 @@ func getKtx2Params(ktx2Mode string, width int, height int, inputPath string, out
 	switch ktx2Mode {
 	case "etc1s":
 		params = append(params, "--encode", "etc1s")
-		params = append(params, "--clevel", "1")
+		params = append(params, "--clevel", strconv.Itoa(etc1sClevel))
 		params = append(params, "--qlevel", strconv.Itoa(etc1sQuality))
 	default:
 		params = append(params, "--encode", "uastc")
@@ -121,7 +124,7 @@ func getKtx2Params(ktx2Mode string, width int, height int, inputPath string, out
 	return params
 }
 
-func ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality int, uastcQuality int, zstdLevel int) (image []byte, err error) {
+func ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface, ktx2Mode string, buf []byte, isSRGB bool, etc1sQuality int, etc1sClevel int, uastcQuality int, zstdLevel int) (image []byte, err error) {
 	var mimeType string = deps.ContentTypeDetector(buf)
 	var inputPath string = "/tmp/" + deps.UUIDGenerator()
 	var outputPath string = "/tmp/" + deps.UUIDGenerator()
@@ -150,7 +153,7 @@ func ConvertToKtx2Image(deps interfaces.ConvertToKtx2ImageDependenciesInterface,
 		return nil, err
 	}
 
-	params := deps.ParamsGenerator(ktx2Mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	params := deps.ParamsGenerator(ktx2Mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 	err = deps.CommandExecutor("toktx", params...)
 	if err != nil {
 		return nil, err
@@ -218,7 +221,7 @@ func (g *GLB) ResizeTexture(width, height int) (err error) {
 	return nil
 }
 
-func (g *GLB) ToKtx2Texture(deps interfaces.ConvertToKtx2TextureDependenciesInterface, ktx2Mode string, etc1sQuality int, uastcQuality int, zstdLevel int) (err error) {
+func (g *GLB) ToKtx2Texture(deps interfaces.ConvertToKtx2TextureDependenciesInterface, ktx2Mode string, etc1sQuality int, etc1sClevel int, uastcQuality int, zstdLevel int) (err error) {
 	var jsonDocument gltf.Document = g.GltfDocument
 	var bin []byte = g.BIN
 
@@ -244,7 +247,7 @@ func (g *GLB) ToKtx2Texture(deps interfaces.ConvertToKtx2TextureDependenciesInte
 			// some models lie about the texture slot, so we always treat texture as non-color
 			isSRGB := false
 
-			img, err := deps.ConvertToKtx2Image(&DefaultConvertToKtx2ImageDependencies{}, ktx2Mode, data, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+			img, err := deps.ConvertToKtx2Image(&DefaultConvertToKtx2ImageDependencies{}, ktx2Mode, data, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 
 			if err != nil {
 				return err

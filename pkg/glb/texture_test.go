@@ -24,6 +24,7 @@ func TestGetKtx2Params(t *testing.T) {
 		outputPath     string
 		isSRGB         bool
 		etc1sQuality   int
+		etc1sClevel    int
 		uastcQuality   int
 		zstdLevel      int
 		expectedParams []string
@@ -37,6 +38,7 @@ func TestGetKtx2Params(t *testing.T) {
 			outputPath:     "output.ktx",
 			isSRGB:         false,
 			etc1sQuality:   300,
+			etc1sClevel:    1,
 			uastcQuality:   2,
 			zstdLevel:      3,
 			expectedParams: []string{"--genmipmap", "--t2", "--assign_oetf", "linear", "--assign_primaries", "none", "--encode", "etc1s", "--clevel", "1", "--qlevel", "128", "output.ktx", "input.ktx"},
@@ -50,6 +52,7 @@ func TestGetKtx2Params(t *testing.T) {
 			outputPath:     "output.ktx",
 			isSRGB:         true,
 			etc1sQuality:   50,
+			etc1sClevel:    0,
 			uastcQuality:   5,
 			zstdLevel:      23,
 			expectedParams: []string{"--genmipmap", "--t2", "--encode", "uastc", "--uastc_quality", "2", "--zcmp", "3", "--resize", "1028x516", "output.ktx", "input.ktx"},
@@ -58,7 +61,7 @@ func TestGetKtx2Params(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := getKtx2Params(c.ktx2Mode, c.width, c.height, c.inputPath, c.outputPath, c.isSRGB, c.etc1sQuality, c.uastcQuality, c.zstdLevel)
+			got := getKtx2Params(c.ktx2Mode, c.width, c.height, c.inputPath, c.outputPath, c.isSRGB, c.etc1sQuality, c.etc1sClevel, c.uastcQuality, c.zstdLevel)
 			if len(got) != len(c.expectedParams) {
 				t.Errorf("Expected params length %d, got %d", len(c.expectedParams), len(got))
 			}
@@ -90,20 +93,20 @@ func TestToKtx2Image(t *testing.T) {
 	outputPath := "/tmp/" + uuid
 	mode := "UASTC"
 	isSRGB := false
-	etc1sQuality, uastcQuality, zstdLevel := 128, 3, 4
+	etc1sQuality, etc1sClevel, uastcQuality, zstdLevel := 128, 1, 3, 4
 	width, height := 1024, 1024
 
 	mockDeps.EXPECT().ContentTypeDetector(testData).Return("image/png")
 	mockDeps.EXPECT().UUIDGenerator().Return(uuid).Times(2)
 	mockDeps.EXPECT().FileCreator(inputPath).Return(mockFile, nil)
 	mockDeps.EXPECT().ImageSizer(testData).Return(width, height, nil)
-	mockDeps.EXPECT().ParamsGenerator(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, uastcQuality, zstdLevel).Return([]string{"toktx", "--t2", outputPath, inputPath})
+	mockDeps.EXPECT().ParamsGenerator(mode, width, height, inputPath, outputPath, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel).Return([]string{"toktx", "--t2", outputPath, inputPath})
 	mockDeps.EXPECT().CommandExecutor("toktx", gomock.Any()).Return(nil)
 	mockDeps.EXPECT().FileReader(outputPath+".ktx2").Return([]byte("ktx2 image data"), nil)
 	mockDeps.EXPECT().FileRemover(inputPath).Return(nil)
 	mockDeps.EXPECT().FileRemover(outputPath + ".ktx2").Return(nil)
 
-	result, err := ConvertToKtx2Image(mockDeps, mode, testData, isSRGB, etc1sQuality, uastcQuality, zstdLevel)
+	result, err := ConvertToKtx2Image(mockDeps, mode, testData, isSRGB, etc1sQuality, etc1sClevel, uastcQuality, zstdLevel)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -144,12 +147,12 @@ func TestToKtx2Texture(t *testing.T) {
 
 	// Set up expectations for the mock object
 	mockDeps.EXPECT().
-		ConvertToKtx2Image(gomock.Any(), "uastc", gomock.Any(), false, -1, 2, 3).
+		ConvertToKtx2Image(gomock.Any(), "uastc", gomock.Any(), false, -1, 1, 2, 3).
 		Return([]byte{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}, nil).
 		Times(1)
 
 	// Execute the method under test
-	err = test_glb.ToKtx2Texture(mockDeps, "uastc", -1, 2, 3)
+	err = test_glb.ToKtx2Texture(mockDeps, "uastc", -1, 1, 2, 3)
 
 	// Assert that there was no error and the expected changes were made
 	assert.NoError(t, err)
